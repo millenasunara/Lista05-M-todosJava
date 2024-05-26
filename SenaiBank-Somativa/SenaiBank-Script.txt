@@ -1,0 +1,99 @@
+CREATE DATABASE SenaiBank
+
+-- Clientes
+CREATE TABLE Clientes (
+    ClienteID INT PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(100) NOT NULL,
+    CPF CHAR(11) NOT NULL UNIQUE,
+    Endereco VARCHAR(255),
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Telefone VARCHAR(15),
+    DataNascimento DATE,
+    DataCadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Contas
+CREATE TABLE Contas (
+    ContaID INT PRIMARY KEY AUTO_INCREMENT,
+    ClienteID INT NOT NULL,
+    Tipo VARCHAR(50),
+    Saldo DECIMAL(10, 2) DEFAULT 0.00,
+    Status VARCHAR(50),
+    DataAbertura TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ClienteID) REFERENCES Clientes(ClienteID)
+);
+
+-- Cartões
+CREATE TABLE Cartões (
+    CartaoID INT PRIMARY KEY AUTO_INCREMENT,
+    ClienteID INT NOT NULL,
+    Numero CHAR(16) NOT NULL UNIQUE,
+    Validade DATE NOT NULL,
+    CodigoSeguranca CHAR(3) NOT NULL,
+    Limite DECIMAL(10, 2),
+    Status VARCHAR(50),
+    DataEmissao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ClienteID) REFERENCES Clientes(ClienteID)
+);
+
+-- Transações
+CREATE TABLE Transações (
+    TransacaoID INT PRIMARY KEY AUTO_INCREMENT,
+    ContaID INT NOT NULL,
+    Tipo VARCHAR(50),
+    Valor DECIMAL(10, 2),
+    DataHora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Descricao VARCHAR(255),
+    FOREIGN KEY (ContaID) REFERENCES Contas(ContaID)
+);
+
+-- Produtos de Investimento
+CREATE TABLE ProdutosDeInvestimento (
+    ProdutoID INT PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(100),
+    Tipo VARCHAR(50),
+    Risco VARCHAR(50),
+    RetornoEsperado DECIMAL(5, 2)
+);
+
+-- Operações de Investimento
+CREATE TABLE OperaçõesDeInvestimento (
+    OperacaoID INT PRIMARY KEY AUTO_INCREMENT,
+    ClienteID INT NOT NULL,
+    ProdutoID INT NOT NULL,
+    Tipo VARCHAR(50),
+    Quantidade INT,
+    ValorTotal DECIMAL(10, 2),
+    Data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ClienteID) REFERENCES Clientes(ClienteID),
+    FOREIGN KEY (ProdutoID) REFERENCES ProdutosDeInvestimento(ProdutoID)
+);
+
+-- Logs de Auditoria
+CREATE TABLE LogsDeAuditoria (
+    LogID INT PRIMARY KEY AUTO_INCREMENT,
+    Usuario VARCHAR(100),
+    Acao VARCHAR(255),
+    DataHora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    EntidadeAfetada VARCHAR(100),
+    IDEntidadeAfetada INT
+);
+
+-- Logs de Acesso
+CREATE TABLE LogsDeAcesso (
+    AcessoID INT PRIMARY KEY AUTO_INCREMENT,
+    UsuarioID INT NOT NULL,
+    TipoAcesso VARCHAR(10) NOT NULL,
+    DataHora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    IP VARCHAR(45),
+    FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID)
+);
+
+-- Usuarios
+CREATE TABLE Usuarios (
+    UsuarioID INT PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(100),
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Senha VARCHAR(255) NOT NULL,
+    Tipo VARCHAR(50)
+);
